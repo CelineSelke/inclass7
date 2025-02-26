@@ -1,19 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 
 void main() {
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider(create: (context) => ThemeProvider(), child: MyApp(),));
+  
+}
+
+class ThemeProvider with ChangeNotifier{
+    ThemeData themeMode = ThemeData.light();
+    Color currentColor = Colors.white;
+    
+    
+    void setColor(Color color) {
+        currentColor = color;
+        notifyListeners();
+    }
+
+    void changeThemeDay() {
+        themeMode = ThemeData.light();
+        notifyListeners();
+    }
+
+    void changeThemeNight() {
+        themeMode = ThemeData.dark();
+        notifyListeners();
+    
+    }
 }
 
 class MyApp extends StatelessWidget {
 
-  FadingTextAnimation app = FadingTextAnimation();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: app,
-      theme: app.getTheme();
+      home: FadingTextAnimation(),
+      theme: context.watch<ThemeProvider>().themeMode,
     );
   }
 }
@@ -25,39 +48,16 @@ class FadingTextAnimation extends StatefulWidget {
 
 class _FadingTextAnimationState extends State<FadingTextAnimation> {
   bool _isVisible = true;
-  ThemeData themeMode = ThemeData.light();
   late ColorPicker picker;
   Color currentColor = Colors.white;
 
-  ThemeData getTheme(){
-      return themeMode;
-  }
+
 
   void toggleVisibility() {
     setState(() {
       _isVisible = !_isVisible;
     });
   }
-
-  void changeThemeDay() {
-      setState() {
-          themeMode = ThemeData.light();
-      }
-  }
-
-    void changeThemeNight() {
-      setState() {
-          themeMode = ThemeData.dark();
-      }
-    }
-
-    
-    void setColor(Color color) {
-        setState(){
-           currentColor = color;
-        }
-    }
-
   
 
   @override
@@ -66,18 +66,18 @@ class _FadingTextAnimationState extends State<FadingTextAnimation> {
       appBar: AppBar(
         title: Text('Fading Text Animation'),
         actions: [ 
-          IconButton(onPressed: changeThemeDay, icon: const Icon(Icons.sunny)), 
-          IconButton(onPressed: changeThemeNight, icon: const Icon(Icons.shield_moon)), 
-          IconButton(onPressed: 
+          Consumer<ThemeProvider>(builder: (context, themes, child) => IconButton(onPressed: () {var theme = context.read<ThemeProvider>(); theme.changeThemeDay();}, icon: const Icon(Icons.sunny))), 
+          Consumer<ThemeProvider>(builder: (context, themes, child) =>IconButton(onPressed: () {var theme = context.read<ThemeProvider>(); theme.changeThemeNight();}, icon: const Icon(Icons.shield_moon))), 
+          Consumer<ThemeProvider>(builder: (context, themes, child) =>(IconButton(onPressed: 
                       () {showDialog(
                           context: context, 
                           builder: (BuildContext context) {
                               return AlertDialog(title: Text("Select Color"), 
                                   content: ColorPicker(
                                         pickerColor: currentColor, 
-                                        onColorChanged: setColor,
+                                        onColorChanged: (Color color) {var theme = context.watch<ThemeProvider>(); theme.setColor(color);},
                                         paletteType: PaletteType.hueWheel,));});}, 
-                      icon: Icon(Icons.water_drop_outlined)) ],
+                      icon: Icon(Icons.water_drop_outlined)))), ],
       ),
       body: Center(
         child: AnimatedOpacity(
