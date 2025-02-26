@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 import 'dart:math';
 
 void main() {
@@ -6,6 +8,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
+  FadingTextAnimation app = FadingTextAnimation();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,6 +72,13 @@ class FadingTextAnimation2 extends StatefulWidget {
 
 class _FadingTextAnimationState extends State<FadingTextAnimation> {
   bool _isVisible = true;
+  ThemeData themeMode = ThemeData.light();
+  late ColorPicker picker;
+  Color currentColor = Colors.white;
+
+  ThemeData getTheme(){
+      return themeMode;
+  }
 
   void toggleVisibility() {
     setState(() {
@@ -75,11 +86,45 @@ class _FadingTextAnimationState extends State<FadingTextAnimation> {
     });
   }
 
+  void changeThemeDay() {
+      setState() {
+          themeMode = ThemeData.light();
+      }
+  }
+
+    void changeThemeNight() {
+      setState() {
+          themeMode = ThemeData.dark();
+      }
+    }
+
+    
+    void setColor(Color color) {
+        setState(){
+           currentColor = color;
+        }
+    }
+
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Fading Text Animation'),
+        actions: [ 
+          IconButton(onPressed: changeThemeDay, icon: const Icon(Icons.sunny)), 
+          IconButton(onPressed: changeThemeNight, icon: const Icon(Icons.shield_moon)), 
+          IconButton(onPressed: 
+                      () {showDialog(
+                          context: context, 
+                          builder: (BuildContext context) {
+                              return AlertDialog(title: Text("Select Color"), 
+                                  content: ColorPicker(
+                                        pickerColor: currentColor, 
+                                        onColorChanged: setColor,
+                                        paletteType: PaletteType.hueWheel,));});}, 
+                      icon: Icon(Icons.water_drop_outlined)) ],
       ),
       body: Center(
         child: AnimatedOpacity(
